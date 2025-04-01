@@ -1,7 +1,7 @@
 name = "冰箱过期食物提醒"
 description = "当冰箱中的食物即将过期时，通过服务器公告提醒所有玩家。"
 author = "凌（Va6gn）"
-version = "1.0.0"
+version = "1.2"
 
 -- 兼容性
 dst_compatible = true
@@ -60,5 +60,26 @@ configuration_options = {
             {description = "关闭", data = false}
         },
         default = true
+    },
+    {
+        name = "reminder_message",
+        label = "提示消息",
+        hover = "自定义提示消息的样式",
+        options = {
+            {description = "标准提示", data = "请尽快食用！"},
+            {description = "涩涩提示", data = "快吃了伦家~"},
+            {description = "不显示", data = ""},
+        },
+        default = "请尽快食用！"
+    },
+    {
+        name = "show_debug_log",
+        label = "显示调试信息",
+        hover = "是否在控制台显示食物检查的详细信息",
+        options = {
+            {description = "开启", data = true},
+            {description = "关闭", data = false}
+        },
+        default = false
     }
 }

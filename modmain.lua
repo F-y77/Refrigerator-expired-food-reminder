@@ -6,6 +6,15 @@ GLOBAL.setmetatable(env, { __index = function(t, k) return GLOBAL.rawget(GLOBAL,
 local FOOD_CHECK_INTERVAL = GetModConfigData("check_interval")
 local EXPIRY_THRESHOLD = GetModConfigData("expiry_threshold")
 local SHOW_EXPIRY_TIME = GetModConfigData("show_expiry_time")
+local REMINDER_MESSAGE = GetModConfigData("reminder_message")
+local SHOW_DEBUG_LOG = GetModConfigData("show_debug_log")
+
+-- 调试日志函数
+local function PrintLog(...)
+    if SHOW_DEBUG_LOG then
+        print(...)
+    end
+end
 
 -- 获取食物名称的本地化字符串
 local function GetLocalizedFoodName(prefab)
@@ -78,7 +87,7 @@ local function CheckIceboxFood()
                     local percent = item.components.perishable:GetPercent()
                     
                     -- 调试信息
-                    print("检查食物: " .. item.prefab .. ", 保鲜度: " .. tostring(percent * 100) .. "%, 阈值: " .. tostring(EXPIRY_THRESHOLD * 100) .. "%, 是否腐烂: " .. tostring(item:HasTag("spoiled")))
+                    PrintLog("检查食物: " .. item.prefab .. ", 保鲜度: " .. tostring(percent * 100) .. "%, 阈值: " .. tostring(EXPIRY_THRESHOLD * 100) .. "%, 是否腐烂: " .. tostring(item:HasTag("spoiled")))
                     
                     if percent <= EXPIRY_THRESHOLD then
                         local prefab_name = item.prefab
@@ -98,7 +107,7 @@ local function CheckIceboxFood()
     end
     
     -- 调试信息
-    print("检查了 " .. total_checked .. " 个食物项目")
+    PrintLog("检查了 " .. total_checked .. " 个食物项目")
     
     -- 如果有即将过期的食物，发送公告
     local has_expiring_food = false
@@ -117,23 +126,26 @@ local function CheckIceboxFood()
             message = message .. food_message
             
             -- 调试信息
-            print("即将过期: " .. food .. " x" .. count)
+            PrintLog("即将过期: " .. food .. " x" .. count)
         end
     end
     
     if has_expiring_food then
-        message = message .. "\n请尽快食用！"
-        print("发送公告: " .. message)
+        -- 只有当提示消息不为空时才添加
+        if REMINDER_MESSAGE ~= "" then
+            message = message .. "\n" .. REMINDER_MESSAGE
+        end
+        PrintLog("发送公告: " .. message)
         TheNet:Announce(message)
     else
-        print("没有找到即将过期的食物")
+        PrintLog("没有找到即将过期的食物")
     end
 end
 
 -- 添加定时检查
 local function AddPeriodicFoodCheck()
     if TheWorld.ismastersim then
-        print("启动定期检查，间隔: " .. FOOD_CHECK_INTERVAL .. " 秒")
+        PrintLog("启动定期检查，间隔: " .. FOOD_CHECK_INTERVAL .. " 秒")
         -- 立即执行一次检查
         CheckIceboxFood()
         -- 然后设置定期检查
